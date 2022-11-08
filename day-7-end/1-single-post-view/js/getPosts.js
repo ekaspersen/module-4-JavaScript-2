@@ -1,48 +1,48 @@
-import moment from "moment";
+import moment from 'moment';
 
-import {GET_POSTS_URL} from "./settings/api";
-import {getToken} from "./utils/storage";
+import { GET_POSTS_URL } from './settings/api';
+import { getToken } from './utils/storage';
 
-const postsContainer = document.querySelector("#posts-container");
-const postsNotificationMessage = document.querySelector(".posts__notification")
+const postsContainer = document.querySelector('#posts-container');
+const postsNotificationMessage = document.querySelector('.posts__notification');
 const accessToken = getToken();
 
 //handle protected routes
 
 if (!accessToken) {
-    location.href = "/login.html";
+    location.href = '/login.html';
 }
 
-console.log("accessToken: ", accessToken);
-console.log("GET_POSTS_URL", GET_POSTS_URL);
-
+console.log('accessToken: ', accessToken);
+console.log('GET_POSTS_URL', GET_POSTS_URL);
 
 (async function getAllPosts() {
     const response = await fetch(GET_POSTS_URL, {
-        method: "GET",
+        method: 'GET',
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
-        }
-    })
-    console.log("get all posts response: ", response)
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+    console.log('get all posts response: ', response);
     if (response.ok) {
         const posts = await response.json();
         console.log(posts);
-        console.log("GET POSTS SUCCEEDED!!  🥳 🤗🤗");
+        console.log('GET POSTS SUCCEEDED!!  🥳 🤗🤗');
         let now = moment(new Date()); //today's date
-        console.log("posts: ", posts)
+        console.log('posts: ', posts);
         if (!posts.length) {
-            postsNotificationMessage.innerHTML = "Sorry no posts currently";
+            postsNotificationMessage.innerHTML = 'Sorry no posts currently';
         } else {
-            const listOfHtmlPosts = posts.map((post) => {
-                console.log("post: ", post);
-                const postBody = post.body;
-                const postTitle = post.title;
-                const createdDate = post.created;
-                const daysSinceCreated = now.diff(createdDate, 'days');
+            const listOfHtmlPosts = posts
+                .map((post) => {
+                    console.log('post: ', post);
+                    const postBody = post.body;
+                    const postTitle = post.title;
+                    const createdDate = post.created;
+                    const daysSinceCreated = now.diff(createdDate, 'days');
 
-                return (`
+                    return `
                 <li class="relative px-4 py-5 bg-white focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 hover:bg-gray-50">
                 <div class="flex justify-between space-x-3">
                     <div class="flex-1 min-w-0">
@@ -60,19 +60,19 @@ console.log("GET_POSTS_URL", GET_POSTS_URL);
                     <p class="text-sm text-gray-600 line-clamp-2">${postBody}</p>
                 </div>
             </li>
-            `)
-            }).join('');
+            `;
+                })
+                .join('');
             // Add Posts to the page
             postsContainer.insertAdjacentHTML('beforeend', listOfHtmlPosts);
         }
-
     } else {
         const err = await response.json();
         const message = `Sorry some error ${err}`;
-        throw new Error(message)
+        throw new Error(message);
     }
-})().catch(err => {
-    console.log("GET POSTS FAILED!!  😥😥😥");
+})().catch((err) => {
+    console.log('GET POSTS FAILED!!  😥😥😥');
     console.log(err);
-    postsNotificationMessage.innerHTML = err
+    postsNotificationMessage.innerHTML = err;
 });
